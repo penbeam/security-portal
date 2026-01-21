@@ -3,8 +3,8 @@
 A professional security incident reporting system with automated alerts and dashboard.
 
 ## 🌐 Live Demo
-- **Report Form:** https://yourusername.github.io/security-portal/
-- **Dashboard:** https://yourusername.github.io/security-portal/dashboard.html
+- **Report Form:** https://penbeam.github.io/security-portal/
+- **Dashboard:** https://penbeam.github.io/security-portal/dashboard.html
 
 ## 🚀 Features
 - Professional web form for incident reporting
