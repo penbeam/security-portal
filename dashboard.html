@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Dashboard</title>
+    <style>
+        /* Use same styles as form */
+        :root {
+            --primary-blue: #1a365d;
+            --secondary-blue: #2d74da;
+            --white: #ffffff;
+            --light-gray: #f7fafc;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f7fafc;
+            color: #2d3748;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        /* Dashboard Stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #1a365d;
+            margin: 0.5rem 0;
+        }
+        
+        .stat-card p {
+            color: #718096;
+            margin: 0;
+        }
+        
+        /* Table */
+        .incidents-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #edf2f7;
+            padding: 1rem;
+            text-align: left;
+            color: #4a5568;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .badge-low { background: #c6f6d5; color: #22543d; }
+        .badge-medium { background: #feebc8; color: #744210; }
+        .badge-high { background: #fed7d7; color: #742a2a; }
+        
+        /* Footer */
+        .footer {
+            background: #2d3748;
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div style="font-size: 2rem;">📊</div>
+                <div>
+                    <h1>Security Dashboard</h1>
+                    <p>Real-time incident monitoring</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Stats -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div style="font-size: 2rem;">📈</div>
+                <h3 id="totalIncidents">--</h3>
+                <p>Total Incidents</p>
+            </div>
+            
+            <div class="stat-card">
+                <div style="font-size: 2rem;">⏱️</div>
+                <h3 id="avgResponse">--</h3>
+                <p>Avg Response Time</p>
+            </div>
+            
+            <div class="stat-card">
+                <div style="font-size: 2rem;">✅</div>
+                <h3 id="resolvedRate">--</h3>
+                <p>Resolved Rate</p>
+            </div>
+        </div>
+
+        <!-- Recent Incidents -->
+        <div class="incidents-table">
+            <h2>📋 Recent Incidents</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Case ID</th>
+                        <th>Type</th>
+                        <th>Priority</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="incidentsBody">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div style="text-align: center; margin: 2rem 0;">
+            <a href="index.html" style="background: #2d74da; color: white; padding: 1rem 2rem; border-radius: 6px; text-decoration: none; display: inline-block;">
+                ➕ Report New Incident
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2024 Corporate Security Dashboard</p>
+            <p style="margin-top: 0.5rem; color: #a0aec0; font-size: 0.9rem;">
+                Auto-updates every 5 minutes | Last updated: <span id="lastUpdated">--:--</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Sample data for demo
+        const sampleIncidents = [
+            { caseId: "SEC-2401-8547", type: "Phishing Email", priority: "High", department: "Finance", status: "New", time: "10:30 AM" },
+            { caseId: "SEC-2401-9213", type: "Data Leak", priority: "High", department: "IT", status: "In Progress", time: "09:15 AM" },
+            { caseId: "SEC-2401-7352", type: "Policy Violation", priority: "Medium", department: "HR", status: "Resolved", time: "Yesterday" },
+            { caseId: "SEC-2401-6198", type: "Unauthorized Access", priority: "Medium", department: "Operations", status: "New", time: "Yesterday" },
+            { caseId: "SEC-2401-4926", type: "Malware", priority: "High", department: "IT", status: "Resolved", time: "2 days ago" }
+        ];
+        
+        // Load dashboard data
+        function loadDashboard() {
+            // Update stats
+            document.getElementById('totalIncidents').textContent = sampleIncidents.length;
+            document.getElementById('avgResponse').textContent = "2.4h";
+            document.getElementById('resolvedRate').textContent = "60%";
+            
+            // Update incidents table
+            const tbody = document.getElementById('incidentsBody');
+            tbody.innerHTML = '';
+            
+            sampleIncidents.forEach(incident => {
+                const row = document.createElement('tr');
+                
+                const priorityClass = `badge-${incident.priority.toLowerCase()}`;
+                
+                row.innerHTML = `
+                    <td><strong>${incident.caseId}</strong></td>
+                    <td>${incident.type}</td>
+                    <td><span class="badge ${priorityClass}">${incident.priority}</span></td>
+                    <td>${incident.department}</td>
+                    <td>${incident.status}</td>
+                    <td>${incident.time}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Update timestamp
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = 
+                `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        }
+        
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+        
+        // Auto-refresh every 5 minutes
+        setInterval(loadDashboard, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
