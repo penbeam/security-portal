@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Incident Report | Corporate Security</title>
+    <style>
+        /* === CORPORATE STYLING === */
+        :root {
+            --primary-blue: #1a365d;
+            --secondary-blue: #2d74da;
+            --white: #ffffff;
+            --light-gray: #f7fafc;
+            --dark-gray: #2d3748;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f7fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .tagline {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* Form Container */
+        .form-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .form-header {
+            background: #edf2f7;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .form-header h2 {
+            color: #1a365d;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Form Sections */
+        .form-section {
+            padding: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .form-section h3 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+        }
+        
+        /* Priority Options */
+        .priority-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .priority-option {
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .priority-option input {
+            display: none;
+        }
+        
+        .priority-low { border-color: #48bb78; }
+        .priority-medium { border-color: #ed8936; }
+        .priority-high { border-color: #f56565; }
+        
+        .priority-option input:checked + .option-content {
+            font-weight: 600;
+        }
+        
+        /* Buttons */
+        .form-actions {
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .submit-btn {
+            background: #2d74da;
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background: #1a365d;
+        }
+        
+        /* Success Message */
+        .success-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            z-index: 1000;
+        }
+        
+        .success-icon {
+            color: #48bb78;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #2d3748;
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .priority-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">🔒</div>
+                <div>
+                    <h1>Corporate Security</h1>
+                    <p class="tagline">24/7 Incident Reporting System</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Form -->
+    <main class="container">
+        <div class="form-container">
+            <div class="form-header">
+                <h2>📋 Security Incident Report</h2>
+                <p>Report any security concerns or policy violations</p>
+            </div>
+
+            <form id="securityForm">
+                <!-- Reporter Information -->
+                <div class="form-section">
+                    <h3>👤 Reporter Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="reporterName">Full Name *</label>
+                        <input type="text" id="reporterName" required placeholder="John Smith">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reporterEmail">Email Address *</label>
+                        <input type="email" id="reporterEmail" required placeholder="john.smith@company.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="department">Department *</label>
+                        <select id="department" required>
+                            <option value="">Select Department</option>
+                            <option value="IT">IT Department</option>
+                            <option value="HR">Human Resources</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Operations">Operations</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Incident Details -->
+                <div class="form-section">
+                    <h3>⚠️ Incident Details</h3>
+                    
+                    <div class="form-group">
+                        <label for="incidentType">Incident Type *</label>
+                        <select id="incidentType" required>
+                            <option value="">Select Type</option>
+                            <option value="Phishing Email">Phishing/Suspicious Email</option>
+                            <option value="Malware">Malware/Virus</option>
+                            <option value="Data Leak">Data Leak/Exposure</option>
+                            <option value="Unauthorized Access">Unauthorized Access</option>
+                            <option value="Policy Violation">Policy Violation</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description *</label>
+                        <textarea id="description" rows="4" required placeholder="Please describe what happened..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Priority Level *</label>
+                        <div class="priority-options">
+                            <label class="priority-option priority-low">
+                                <input type="radio" name="priority" value="Low" required>
+                                <div class="option-content">
+                                    <div style="font-size: 1.5rem;">🟢</div>
+                                    <strong>Low</strong>
+                                    <small>Minor issue</small>
+                                </div>
+                            </label>
+                            
+                            <label class="priority-option priority-medium">
+                                <input type="radio" name="priority" value="Medium" required>
+                                <div class="option-content">
+                                    <div style="font-size: 1.5rem;">🟡</div>
+                                    <strong>Medium</strong>
+                                    <small>Needs attention</small>
+                                </div>
+                            </label>
+                            
+                            <label class="priority-option priority-high">
+                                <input type="radio" name="priority" value="High" required>
+                                <div class="option-content">
+                                    <div style="font-size: 1.5rem;">🔴</div>
+                                    <strong>High</strong>
+                                    <small>Immediate action</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirmation -->
+                <div class="form-section">
+                    <div style="background: #f0fff4; padding: 1rem; border-radius: 6px; border-left: 4px solid #48bb78;">
+                        <p><strong>🔒 Confidentiality Notice:</strong> All reports are treated with strict confidentiality.</p>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                            <input type="checkbox" required style="width: auto; margin-top: 0.25rem;">
+                            <span>I confirm this information is accurate *</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">
+                        📤 Submit Incident Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Success Message -->
+    <div id="successMessage" class="success-message">
+        <div class="success-icon">✅</div>
+        <h2>Report Submitted Successfully!</h2>
+        <p id="caseIdDisplay" style="margin: 1rem 0; font-weight: 600;"></p>
+        <p>Security team has been notified.</p>
+        <p style="margin-top: 1rem; color: #718096; font-size: 0.9rem;">
+            You will receive a confirmation email shortly.
+        </p>
+        <button onclick="closeSuccess()" style="margin-top: 1.5rem; padding: 0.5rem 2rem; background: #2d74da; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Close
+        </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p style="text-align: center;">
+                © 2024 Corporate Security Department. All rights reserved.
+            </p>
+            <p style="text-align: center; margin-top: 0.5rem; color: #a0aec0; font-size: 0.9rem;">
+                24/7 Security Hotline: 1-800-SECURITY
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Generate unique case ID
+        function generateCaseId() {
+            const date = new Date();
+            const year = date.getFullYear().toString().slice(-2);
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `SEC-${year}${month}-${random}`;
+        }
+
+        // Form submission
+        document.getElementById('securityForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = {
+                caseId: generateCaseId(),
+                reporterName: document.getElementById('reporterName').value,
+                reporterEmail: document.getElementById('reporterEmail').value,
+                department: document.getElementById('department').value,
+                incidentType: document.getElementById('incidentType').value,
+                description: document.getElementById('description').value,
+                priority: document.querySelector('input[name="priority"]:checked').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Show loading
+            const submitBtn = document.querySelector('.submit-btn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '⏳ Submitting...';
+            submitBtn.disabled = true;
+            
+            try {
+                // REPLACE THIS WITH YOUR MAKE.COM WEBHOOK URL
+                const webhookUrl = 'https://hook.eu1.make.com/gulb2bnv86kx7bgdj4lx036gqjx42dpl';
+                
+                // Send to Make.com
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    // Show success
+                    document.getElementById('caseIdDisplay').textContent = `Case ID: ${formData.caseId}`;
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Reset form
+                    document.getElementById('securityForm').reset();
+                    
+                } else {
+                    throw new Error('Failed to submit');
+                }
+                
+            } catch (error) {
+                alert('Error submitting report. Please try again or contact security directly.');
+            } finally {
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+        
+        function closeSuccess() {
+            document.getElementById('successMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
