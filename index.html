@@ -375,20 +375,29 @@
     </footer>
 
     <script>
-        // Generate unique case ID
-        function generateCaseId() {
-            const date = new Date();
-            const year = date.getFullYear().toString().slice(-2);
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            return `SEC-${year}${month}-${random}`;
-        }
+    // Generate a case ID
+    function generateCaseId() {
+        const date = new Date();
+        const year = date.getFullYear().toString().slice(-2);
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        return `SEC-${year}${month}-${random}`;
+    }
 
-        // Form submission
-        document.getElementById('securityForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Get form data
+    // Form submission
+    document.getElementById('securityForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Get the submit button
+        const submitBtn = document.querySelector('.submit-btn');
+        const originalText = submitBtn.innerHTML;
+        
+        // Show loading
+        submitBtn.innerHTML = '⏳ Submitting...';
+        submitBtn.disabled = true;
+        
+        try {
+            // Get form values DIRECTLY (most reliable way)
             const formData = {
                 caseId: generateCaseId(),
                 reporterName: document.getElementById('reporterName').value,
@@ -400,49 +409,62 @@
                 timestamp: new Date().toISOString()
             };
             
-            // Show loading
-            const submitBtn = document.querySelector('.submit-btn');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '⏳ Submitting...';
-            submitBtn.disabled = true;
+            console.log('Sending data:', formData); // For debugging
             
-            try {
-                // REPLACE THIS WITH YOUR MAKE.COM WEBHOOK URL
-                const webhookUrl = 'https://hook.eu1.make.com/gulb2bnv86kx7bgdj4lx036gqjx42dpl';
+            // ⚠️ REPLACE THIS WITH YOUR ACTUAL WEBHOOK URL ⚠️
+            const webhookUrl = "https://hook.eu1.make.com/gulb2bnv86kx7bgdj4lx036gqjx42dpl";
+            
+            // Send to Make.com
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            console.log('Response status:', response.status); // For debugging
+            
+            if (response.ok) {
+                // Show success message
+                document.getElementById('caseIdDisplay').textContent = `Case ID: ${formData.caseId}`;
+                document.getElementById('successMessage').style.display = 'block';
                 
-                // Send to Make.com
-                const response = await fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
+                // Reset the form
+                document.getElementById('securityForm').reset();
                 
-                if (response.ok) {
-                    // Show success
-                    document.getElementById('caseIdDisplay').textContent = `Case ID: ${formData.caseId}`;
-                    document.getElementById('successMessage').style.display = 'block';
-                    
-                    // Reset form
-                    document.getElementById('securityForm').reset();
-                    
-                } else {
-                    throw new Error('Failed to submit');
-                }
+                // Update button text
+                submitBtn.innerHTML = '✅ Submitted!';
                 
-            } catch (error) {
-                alert('Error submitting report. Please try again or contact security directly.');
-            } finally {
-                // Reset button
+            } else {
+                throw new Error(`Server responded with ${response.status}`);
+            }
+            
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error submitting report. Please try again or contact security team.');
+            submitBtn.innerHTML = '❌ Try Again';
+            setTimeout(() => {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
-            }
-        });
-        
-        function closeSuccess() {
-            document.getElementById('successMessage').style.display = 'none';
+            }, 2000);
+            return;
         }
-    </script>
+        
+        // Re-enable button after 3 seconds
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 3000);
+    });
+    
+    // Close success message
+    function closeSuccess() {
+        document.getElementById('successMessage').style.display = 'none';
+    }
+    
+    // For debugging: Add this to see what's being sent
+    console.log('Form script loaded');
+</script>
 </body>
 </html>
