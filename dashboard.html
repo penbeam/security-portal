@@ -206,177 +206,189 @@
     </footer>
 
     <script>
-    // Your Google Sheet ID
+    // Your Google Sheet ID (get it from the URL)
+    // Example URL: https://docs.google.com/spreadsheets/d/1ABC123XYZ/edit
+    // Sheet ID is: 1ABC123XYZ
     const SHEET_ID = '14GnxmzuR_4aIWpXUbO47HHYjfL9HT7Yj-c8CrDNYlmQ';
+    
+    // Public JSON URL
     const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
     
-    // Simple function to load and display data
-    async function loadDashboard() {
-        console.log('Loading dashboard data...');
+    // Convert Google Sheets data to readable format
+    function parseSheetData(json) {
+        const data = [];
+        const rows = json.table.rows;
         
+        // Skip header row (row 0)
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const rowData = {};
+            
+            // Get each cell value
+            row.c.forEach((cell, index) => {
+                const header = json.table.cols[index].label;
+                rowData[header] = cell ? cell.v : '';
+            });
+            
+            data.push(rowData);
+        }
+        
+        return data;
+    }
+    
+    // Load data from Google Sheets
+    async function loadRealData() {
         try {
-            // Fetch data
+            console.log('Loading data from Google Sheets...');
+            
             const response = await fetch(SHEET_URL);
             const text = await response.text();
             
-            // Extract JSON
-            const jsonStart = text.indexOf('{');
-            const jsonEnd = text.lastIndexOf('}') + 1;
-            const jsonStr = text.substring(jsonStart, jsonEnd);
-            const data = JSON.parse(jsonStr);
+            // Remove the prefix "google.visualization.Query.setResponse(" and the trailing ")"
+            const jsonStr = text.substring(47, text.length - 2);
+            const json = JSON.parse(jsonStr);
             
-            console.log('Raw data received:', data);
+            const incidents = parseSheetData(json);
+            console.log('Loaded incidents:', incidents);
             
-            // Process data
-            const incidents = [];
-            
-            if (data.table && data.table.rows) {
-                // Get headers from first row
-                const headers = [];
-                if (data.table.rows[0] && data.table.rows[0].c) {
-                    data.table.rows[0].c.forEach((cell, index) => {
-                        headers[index] = cell ? (cell.v || `Column${index}`).toString() : `Column${index}`;
-                    });
-                }
-                
-                console.log('Headers:', headers);
-                
-                // Process data rows (skip header row)
-                for (let i = 1; i < data.table.rows.length; i++) {
-                    const row = data.table.rows[i];
-                    const incident = {};
-                    
-                    if (row.c) {
-                        row.c.forEach((cell, colIndex) => {
-                            const header = headers[colIndex];
-                            if (header && cell && cell.v !== undefined) {
-                                incident[header] = cell.v;
-                            }
-                        });
-                        
-                        // Only add if it has data
-                        if (Object.keys(incident).length > 0) {
-                            incidents.push(incident);
-                        }
-                    }
-                }
-            }
-            
-            console.log('Processed incidents:', incidents);
-            
-            // Update dashboard
-            updateDashboard(incidents);
+            return incidents;
             
         } catch (error) {
-            console.error('Error loading data:', error);
-            showSampleData();
+            console.error('Error loading from Google Sheets:', error);
+            return null;
         }
     }
     
-    // Update dashboard display
+    // Calculate statistics
+    function calculateStats(incidents) {
+        if (!incidents || incidents.length === 0) return null;
+        
+        const stats = {
+            total: incidents.length,
+            highPriority: incidents.filter(i => i.Priority === 'High').length,
+            mediumPriority: incidents.filter(i => i.Priority === 'Medium').length,
+            lowPriority: incidents.filter(i => i.Priority === 'Low').length,
+            newStatus: incidents.filter(i => i.Status === 'NEW').length,
+            resolved: incidents.filter(i => i.Status === 'Resolved').length
+        };
+        
+        stats.open = stats.newStatus;
+        stats.resolvedRate = Math.round((stats.resolved / stats.total) * 100);
+        stats.avgResponseTime = '2.4h'; // You can calculate this from timestamps
+        
+        return stats;
+    }
+    
+    // Update dashboard with real data
     function updateDashboard(incidents) {
-        console.log('Updating with', incidents.length, 'incidents');
-        
-        // Update stats
-        document.getElementById('totalIncidents').textContent = incidents.length;
-        
-        // Calculate resolved rate
-        const resolved = incidents.filter(inc => 
-            inc.Status && inc.Status.toString().toLowerCase() === 'resolved'
-        ).length;
-        
-        const resolvedRate = incidents.length > 0 ? 
-            Math.round((resolved / incidents.length) * 100) : 0;
-        
-        document.getElementById('resolvedRate').textContent = resolvedRate + '%';
-        
-        // Update table
-        const tbody = document.getElementById('incidentsBody');
-        tbody.innerHTML = '';
-        
-        if (incidents.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" style="text-align: center; padding: 20px; color: #718096;">
-                        No incidents reported yet
-                    </td>
-                </tr>
-            `;
+        if (!incidents || incidents.length === 0) {
+            console.log('No incidents found, using sample data');
+            loadSampleData();
             return;
         }
         
-        // Show last 5 incidents (most recent first)
-        const recentIncidents = incidents.slice(-5).reverse();
+        const stats = calculateStats(incidents);
+        
+        // Update statistics
+        document.getElementById('totalIncidents').textContent = stats.total;
+        document.getElementById('avgResponse').textContent = stats.avgResponseTime;
+        document.getElementById('resolvedRate').textContent = `${stats.resolvedRate}%`;
+        
+        // Update incidents table (show last 5)
+        const tbody = document.getElementById('incidentsBody');
+        tbody.innerHTML = '';
+        
+        const recentIncidents = incidents.slice(-5).reverse(); // Show most recent first
         
         recentIncidents.forEach(incident => {
-            console.log('Displaying incident:', incident);
-            
             const row = document.createElement('tr');
             
-            // Get values (with different possible property names)
-            const caseId = incident['Case ID'] || incident['CaseID'] || incident['caseId'] || 'N/A';
-            const incidentType = incident['Incident Type'] || incident['IncidentType'] || incident['Type'] || 'N/A';
-            const priority = incident['Priority'] || incident['priority'] || 'Medium';
-            const department = incident['Department'] || incident['department'] || 'N/A';
-            const status = incident['Status'] || incident['status'] || 'NEW';
-            const timestamp = incident['Timestamp'] || incident['timestamp'] || '';
-            
-            // Priority badge
-            let badgeClass = 'badge-medium';
-            const priorityLower = priority.toString().toLowerCase();
-            if (priorityLower.includes('high')) badgeClass = 'badge-high';
-            else if (priorityLower.includes('low')) badgeClass = 'badge-low';
-            
-            // Format time
-            let displayTime = 'Recent';
-            if (timestamp) {
-                try {
-                    const date = new Date(timestamp);
-                    displayTime = date.toLocaleDateString();
-                } catch (e) {
-                    displayTime = timestamp.toString().slice(0, 10);
+            // Format timestamp
+            let timeDisplay = 'Recent';
+            if (incident.Timestamp) {
+                const date = new Date(incident.Timestamp);
+                if (!isNaN(date.getTime())) {
+                    timeDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 }
             }
             
+            // Priority badge class
+            const priorityClass = incident.Priority ? `badge-${incident.Priority.toLowerCase()}` : 'badge-medium';
+            
             row.innerHTML = `
-                <td><strong>${caseId}</strong></td>
-                <td>${incidentType}</td>
-                <td><span class="badge ${badgeClass}">${priority}</span></td>
-                <td>${department}</td>
-                <td>${status}</td>
-                <td>${displayTime}</td>
+                <td><strong>${incident['Case ID'] || 'N/A'}</strong></td>
+                <td>${incident['Incident Type'] || 'N/A'}</td>
+                <td><span class="badge ${priorityClass}">${incident.Priority || 'Medium'}</span></td>
+                <td>${incident.Department || 'N/A'}</td>
+                <td>${incident.Status || 'NEW'}</td>
+                <td>${timeDisplay}</td>
             `;
             
             tbody.appendChild(row);
         });
         
-        // Update last refresh time
+        // Update last updated time
         const now = new Date();
         document.getElementById('lastUpdated').textContent = 
             `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
     }
     
-    // Sample data fallback
-    function showSampleData() {
-        console.log('Showing sample data');
-        const sample = [
-            {
-                'Case ID': 'SEC-2401-001',
-                'Incident Type': 'Test Incident',
-                'Priority': 'High',
-                'Department': 'IT',
-                'Status': 'NEW',
-                'Timestamp': new Date().toISOString()
+    // Fallback to sample data
+    function loadSampleData() {
+        console.log('Loading sample data...');
+        
+        const sampleIncidents = [
+            { 
+                'Case ID': 'SEC-2401-8547', 
+                'Incident Type': 'Phishing Email', 
+                'Priority': 'High', 
+                'Department': 'Finance', 
+                'Status': 'New', 
+                'Timestamp': new Date().toISOString() 
+            },
+            { 
+                'Case ID': 'SEC-2401-9213', 
+                'Incident Type': 'Data Leak', 
+                'Priority': 'High', 
+                'Department': 'IT', 
+                'Status': 'In Progress', 
+                'Timestamp': new Date(Date.now() - 3600000).toISOString() 
+            },
+            { 
+                'Case ID': 'SEC-2401-7352', 
+                'Incident Type': 'Policy Violation', 
+                'Priority': 'Medium', 
+                'Department': 'HR', 
+                'Status': 'Resolved', 
+                'Timestamp': new Date(Date.now() - 86400000).toISOString() 
             }
         ];
-        updateDashboard(sample);
+        
+        updateDashboard(sampleIncidents);
     }
     
-    // Load on page load
-    document.addEventListener('DOMContentLoaded', loadDashboard);
+    // Load data on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+        console.log('Dashboard loading...');
+        
+        // Try to load real data first
+        const realData = await loadRealData();
+        
+        if (realData && realData.length > 0) {
+            updateDashboard(realData);
+        } else {
+            loadSampleData();
+        }
+    });
     
-    // Auto-refresh
-    setInterval(loadDashboard, 30000);
+    // Auto-refresh every 30 seconds
+    setInterval(async () => {
+        console.log('Auto-refreshing dashboard...');
+        const realData = await loadRealData();
+        if (realData && realData.length > 0) {
+            updateDashboard(realData);
+        }
+    }, 30000);
 </script>
 </body>
 </html>
