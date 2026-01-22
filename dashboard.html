@@ -333,16 +333,28 @@
         recentIncidents.forEach(incident => {
             const row = document.createElement('tr');
             
-            // --- REPLACE YOUR OLD TIME BLOCK WITH THIS ---
+            // --- IMPROVED TIME BLOCK ---
 let timeDisplay = 'Recent';
-
-// Check for the date in multiple possible header names
-const rawDate = incident.Timestamp || incident.timestamp || incident.Time || incident.time;
+const rawDate = incident.Timestamp || incident.timestamp || incident.Time;
 
 if (rawDate) {
-    const date = new Date(rawDate);
-    // Ensure the date is valid before formatting
-    if (!isNaN(date.getTime())) {
+    let date;
+    
+    // Check if the date is in the Google "Date(y,m,d,h,m,s)" format
+    if (typeof rawDate === 'string' && rawDate.startsWith('Date(')) {
+        // Extract the numbers between the brackets
+        const parts = rawDate.match(/\d+/g);
+        if (parts && parts.length >= 3) {
+            // Note: Google months are 0-indexed (Jan = 0)
+            date = new Date(parts[0], parts[1], parts[2], parts[3] || 0, parts[4] || 0, parts[5] || 0);
+        }
+    } else {
+        // Standard date format
+        date = new Date(rawDate);
+    }
+
+    // If we have a valid date, format it
+    if (date && !isNaN(date.getTime())) {
         timeDisplay = date.toLocaleDateString() + ' ' + 
         date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
