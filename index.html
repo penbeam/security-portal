@@ -406,7 +406,9 @@
                 incidentType: document.getElementById('incidentType').value,
                 description: document.getElementById('description').value,
                 priority: document.querySelector('input[name="priority"]:checked').value,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                // GLOBAL USER TIME ZONE: This detects the user's timezone (e.g., "Asia/Karachi", "America/New_York")
+                userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone
             };
             
             console.log('Sending data:', formData); // For debugging
