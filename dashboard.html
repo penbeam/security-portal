@@ -72,57 +72,60 @@
             margin: 0;
         }
         
-        /* Table Container */
-.incidents-table {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin: 2rem 0;
-    max-height: 500px;    
-    overflow-y: auto;     
-    overflow-x: auto;
-    position: relative;
-    /* Removed padding from here because it breaks sticky headers */
-}
+        /* --- UNIVERSAL STICKY TABLE STYLES --- */
+        .incidents-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin: 2rem 0;
+            max-height: 500px;    
+            overflow-y: auto;     /* Vertical scroll */
+            overflow-x: auto;     /* Horizontal scroll for mobile */
+            position: relative;
+            border: 1px solid #e2e8f0;
+        }
 
-table {
-    width: 100%;
-    border-collapse: separate; /* Changed from collapse to handle sticky borders better */
-    border-spacing: 0;
-}
+        table {
+            width: 100%;
+            border-collapse: separate; /* Required for sticky borders */
+            border-spacing: 0;
+            min-width: 800px; /* Ensures table doesn't 'squish' on mobile */
+        }
 
-th {
-    background: #edf2f7;
-    padding: 1rem;
-    text-align: left;
-    color: #4a5568;
-    font-weight: 600;
-    position: sticky;
-    top: 0;       /* Sticks exactly to the top of .incidents-table */
-    z-index: 10;
-    border-bottom: 2px solid #e2e8f0;
-}
+        th {
+            background: #edf2f7;
+            padding: 1rem;
+            text-align: left;
+            color: #4a5568;
+            font-weight: 600;
+            position: sticky;
+            top: 0;           /* Locks to top of .incidents-table */
+            z-index: 10;
+            border-bottom: 2px solid #cbd5e0;
+        }
 
-/* Add padding to cells since we removed it from the container */
-td {
-    padding: 1rem;
-    border-bottom: 1px solid #e2e8f0;
-}
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            background: white; /* Prevents text overlap during scroll */
+        }
 
-/* Zebra Striping (Makes long lists much easier to read) */
-tbody tr:nth-child(even) {
-    background-color: #f8fafc;
-}
+         /* Zebra Striping */
+        tbody tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
 
-tbody tr:hover {
-    background-color: #edf2f7; /* Highlighting row on hover */
-}
+        tbody tr:hover td {
+            background-color: #edf2f7;
+        }
         
+        /* Improved Badges */
         .badge {
             padding: 0.25rem 0.75rem;
             border-radius: 20px;
             font-size: 0.875rem;
             font-weight: 600;
+            white-space: nowrap;
         }
         
         .badge-low { background: #c6f6d5; color: #22543d; }
@@ -143,9 +146,14 @@ tbody tr:hover {
                 grid-template-columns: 1fr;
             }
             
-            table {
-                display: block;
-                overflow-x: auto;
+            /* IMPORTANT: We removed 'display: block' from the table */
+            .incidents-table {
+             max-height: 400px; /* Slightly shorter for smaller screens */
+            }
+
+            th, td {
+                padding: 0.75rem;
+                font-size: 0.85rem;
             }
         }
     </style>
