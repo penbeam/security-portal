@@ -79,6 +79,10 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
             margin: 2rem 0;
+            /* ADD THESE THREE LINES */
+            max-height: 500px;    /* You can adjust this height */
+            overflow-y: auto;     /* Enables vertical scroll */
+            position: relative;
         }
         
         table {
@@ -92,6 +96,9 @@
             text-align: left;
             color: #4a5568;
             font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
         td {
@@ -301,7 +308,7 @@
         const tbody = document.getElementById('incidentsBody');
         tbody.innerHTML = '';
         
-        const recentIncidents = incidents.slice(-5).reverse(); // Show most recent first
+        const recentIncidents = [...incidents].reverse(); // Show most recent first
         
         recentIncidents.forEach(incident => {
             const row = document.createElement('tr');
