@@ -72,39 +72,51 @@
             margin: 0;
         }
         
-        /* Table */
-        .incidents-table {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-            margin: 2rem 0;
-            /* ADD THESE THREE LINES */
-            max-height: 500px;    /* You can adjust this height */
-            overflow-y: auto;     /* Enables vertical scroll */
-            position: relative;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th {
-            background: #edf2f7;
-            padding: 1rem;
-            text-align: left;
-            color: #4a5568;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
+        /* Table Container */
+.incidents-table {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 2rem 0;
+    max-height: 500px;    
+    overflow-y: auto;     
+    overflow-x: auto;
+    position: relative;
+    /* Removed padding from here because it breaks sticky headers */
+}
+
+table {
+    width: 100%;
+    border-collapse: separate; /* Changed from collapse to handle sticky borders better */
+    border-spacing: 0;
+}
+
+th {
+    background: #edf2f7;
+    padding: 1rem;
+    text-align: left;
+    color: #4a5568;
+    font-weight: 600;
+    position: sticky;
+    top: 0;       /* Sticks exactly to the top of .incidents-table */
+    z-index: 10;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Add padding to cells since we removed it from the container */
+td {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Zebra Striping (Makes long lists much easier to read) */
+tbody tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+tbody tr:hover {
+    background-color: #edf2f7; /* Highlighting row on hover */
+}
         
         .badge {
             padding: 0.25rem 0.75rem;
