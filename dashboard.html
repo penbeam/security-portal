@@ -206,129 +206,102 @@
     </footer>
 
     <script>
-    // === ONLY CHANGE THIS LINE ===
-    const SHEET_ID = '14GnxmzuR_4aIWpXUbO47HHYjfL9HT7Yj-c8CrDNYlmQ'; // Your actual Sheet ID
-    // ==============================
-    
+    // Your Google Sheet ID
+    const SHEET_ID = '14GnxmzuR_4aIWpXUbO47HHYjfL9HT7Yj-c8CrDNYlmQ';
     const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
     
-    async function loadDashboardData() {
+    // Simple function to load and display data
+    async function loadDashboard() {
         console.log('Loading dashboard data...');
         
         try {
+            // Fetch data
             const response = await fetch(SHEET_URL);
             const text = await response.text();
-            console.log('Raw response length:', text.length);
             
-            // Clean the response
-            const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\((.*)\);/);
-            if (!jsonMatch) {
-                throw new Error('Invalid response format');
+            // Extract JSON
+            const jsonStart = text.indexOf('{');
+            const jsonEnd = text.lastIndexOf('}') + 1;
+            const jsonStr = text.substring(jsonStart, jsonEnd);
+            const data = JSON.parse(jsonStr);
+            
+            console.log('Raw data received:', data);
+            
+            // Process data
+            const incidents = [];
+            
+            if (data.table && data.table.rows) {
+                // Get headers from first row
+                const headers = [];
+                if (data.table.rows[0] && data.table.rows[0].c) {
+                    data.table.rows[0].c.forEach((cell, index) => {
+                        headers[index] = cell ? (cell.v || `Column${index}`).toString() : `Column${index}`;
+                    });
+                }
+                
+                console.log('Headers:', headers);
+                
+                // Process data rows (skip header row)
+                for (let i = 1; i < data.table.rows.length; i++) {
+                    const row = data.table.rows[i];
+                    const incident = {};
+                    
+                    if (row.c) {
+                        row.c.forEach((cell, colIndex) => {
+                            const header = headers[colIndex];
+                            if (header && cell && cell.v !== undefined) {
+                                incident[header] = cell.v;
+                            }
+                        });
+                        
+                        // Only add if it has data
+                        if (Object.keys(incident).length > 0) {
+                            incidents.push(incident);
+                        }
+                    }
+                }
             }
             
-            const jsonData = JSON.parse(jsonMatch[1]);
-            console.log('Parsed JSON:', jsonData);
-            
-            // Process the data
-            const incidents = processSheetData(jsonData);
             console.log('Processed incidents:', incidents);
             
-            if (incidents.length > 0) {
-                updateDashboard(incidents);
-            } else {
-                showSampleData();
-            }
+            // Update dashboard
+            updateDashboard(incidents);
             
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error loading data:', error);
             showSampleData();
         }
     }
     
-    // NEW: Better data processing
-    function processSheetData(data) {
-    const incidents = [];
-    
-    if (!data.table || !data.table.rows) {
-        console.error('No table data found');
-        return incidents;
-    }
-
-    // Map your specific column indexes to labels
-    // Based on your sheet: A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7
-    const colMap = {
-        0: 'Case ID',
-        1: 'Timestamp',
-        2: 'Status',
-        3: 'Reporter Name',
-        4: 'Reporter Email',
-        5: 'Department',
-        6: 'Incident Type',
-        7: 'Priority'
-    };
-
-    // Process rows starting from the VERY FIRST ROW (index 0)
-    // because your JSON suggests the header row isn't being excluded by the API
-    data.table.rows.forEach(row => {
-        const incident = {};
-        if (row.c) {
-            row.c.forEach((cell, colIndex) => {
-                const label = colMap[colIndex];
-                if (label) {
-                    // Extract the value 'v' or formatted value 'f'
-                    let val = (cell && cell.v !== null) ? cell.v : '';
-                    if (cell && cell.f) val = cell.f;
-                    incident[label] = val;
-                }
-            });
-
-            // Only add if it's not a header row itself
-            if (incident['Case ID'] !== 'Case ID' && incident['Case ID'] !== '') {
-                incidents.push(incident);
-            }
-        }
-    });
-
-    console.log('Cleanly Processed', incidents.length, 'incidents');
-    return incidents;
-}
-    
     // Update dashboard display
     function updateDashboard(incidents) {
-        console.log('Updating dashboard with', incidents.length, 'incidents');
+        console.log('Updating with', incidents.length, 'incidents');
         
-        // Update statistics
+        // Update stats
         document.getElementById('totalIncidents').textContent = incidents.length;
         
-        // Calculate stats
-        const highPriority = incidents.filter(inc => 
-            inc.Priority && inc.Priority.toString().toLowerCase().includes('high')
-        ).length;
-        
-        const mediumPriority = incidents.filter(inc => 
-            inc.Priority && inc.Priority.toString().toLowerCase().includes('medium')
-        ).length;
-        
-        const lowPriority = incidents.filter(inc => 
-            inc.Priority && inc.Priority.toString().toLowerCase().includes('low')
-        ).length;
-        
+        // Calculate resolved rate
         const resolved = incidents.filter(inc => 
-            inc.Status && inc.Status.toString().toLowerCase().includes('resolved')
+            inc.Status && inc.Status.toString().toLowerCase() === 'resolved'
         ).length;
         
-        // Update stats display
-        document.getElementById('resolvedRate').textContent = 
-            incidents.length > 0 ? Math.round((resolved / incidents.length) * 100) + '%' : '0%';
+        const resolvedRate = incidents.length > 0 ? 
+            Math.round((resolved / incidents.length) * 100) : 0;
         
-        // Update incidents table
+        document.getElementById('resolvedRate').textContent = resolvedRate + '%';
+        
+        // Update table
         const tbody = document.getElementById('incidentsBody');
         tbody.innerHTML = '';
         
         if (incidents.length === 0) {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td colspan="6" style="text-align: center; color: #718096;">No incidents reported yet</td>`;
-            tbody.appendChild(row);
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 20px; color: #718096;">
+                        No incidents reported yet
+                    </td>
+                </tr>
+            `;
             return;
         }
         
@@ -336,42 +309,35 @@
         const recentIncidents = incidents.slice(-5).reverse();
         
         recentIncidents.forEach(incident => {
-            console.log('Processing incident:', incident);
+            console.log('Displaying incident:', incident);
             
             const row = document.createElement('tr');
             
-            // Get values with fallbacks
-            const caseId = incident['Case ID'] || incident['caseId'] || incident['CaseID'] || 'N/A';
-            const incidentType = incident['Incident Type'] || incident['incidentType'] || incident['Type'] || 'N/A';
+            // Get values (with different possible property names)
+            const caseId = incident['Case ID'] || incident['CaseID'] || incident['caseId'] || 'N/A';
+            const incidentType = incident['Incident Type'] || incident['IncidentType'] || incident['Type'] || 'N/A';
             const priority = incident['Priority'] || incident['priority'] || 'Medium';
             const department = incident['Department'] || incident['department'] || 'N/A';
             const status = incident['Status'] || incident['status'] || 'NEW';
             const timestamp = incident['Timestamp'] || incident['timestamp'] || '';
             
-            // Determine badge class
+            // Priority badge
             let badgeClass = 'badge-medium';
-            const priorityStr = priority.toString().toLowerCase();
-            if (priorityStr.includes('high')) badgeClass = 'badge-high';
-            else if (priorityStr.includes('low')) badgeClass = 'badge-low';
+            const priorityLower = priority.toString().toLowerCase();
+            if (priorityLower.includes('high')) badgeClass = 'badge-high';
+            else if (priorityLower.includes('low')) badgeClass = 'badge-low';
             
-            // Format timestamp
+            // Format time
             let displayTime = 'Recent';
             if (timestamp) {
                 try {
-                    // Try to parse date
                     const date = new Date(timestamp);
-                    if (!isNaN(date.getTime())) {
-                        displayTime = date.toLocaleDateString() + ' ' + 
-                                     date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    } else {
-                        displayTime = timestamp.toString().slice(0, 10);
-                    }
+                    displayTime = date.toLocaleDateString();
                 } catch (e) {
                     displayTime = timestamp.toString().slice(0, 10);
                 }
             }
             
-            // Create table row
             row.innerHTML = `
                 <td><strong>${caseId}</strong></td>
                 <td>${incidentType}</td>
@@ -393,33 +359,24 @@
     // Sample data fallback
     function showSampleData() {
         console.log('Showing sample data');
-        const sampleIncidents = [
+        const sample = [
             {
-                'Case ID': 'SEC-2401-8547',
-                'Incident Type': 'Phishing Email',
-                'Priority': 'High',
-                'Department': 'Finance',
-                'Status': 'New',
-                'Timestamp': new Date().toISOString()
-            },
-            {
-                'Case ID': 'SEC-2401-9213',
-                'Incident Type': 'Data Leak',
+                'Case ID': 'SEC-2401-001',
+                'Incident Type': 'Test Incident',
                 'Priority': 'High',
                 'Department': 'IT',
-                'Status': 'In Progress',
-                'Timestamp': new Date(Date.now() - 3600000).toISOString()
+                'Status': 'NEW',
+                'Timestamp': new Date().toISOString()
             }
         ];
-        
-        updateDashboard(sampleIncidents);
+        updateDashboard(sample);
     }
     
-    // Load data when page loads
-    document.addEventListener('DOMContentLoaded', loadDashboardData);
+    // Load on page load
+    document.addEventListener('DOMContentLoaded', loadDashboard);
     
-    // Auto-refresh every 30 seconds
-    setInterval(loadDashboardData, 30000);
+    // Auto-refresh
+    setInterval(loadDashboard, 30000);
 </script>
 </body>
 </html>
