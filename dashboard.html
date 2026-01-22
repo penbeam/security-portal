@@ -247,65 +247,51 @@
     
     // NEW: Better data processing
     function processSheetData(data) {
-        const incidents = [];
-        
-        if (!data.table || !data.table.rows) {
-            console.error('No table data found');
-            return incidents;
-        }
-        
-        // Get headers from first row
-        const headers = [];
-        if (data.table.rows[0] && data.table.rows[0].c) {
-            data.table.rows[0].c.forEach((cell, index) => {
-                if (cell && cell.v) {
-                    headers[index] = cell.v.toString().trim();
-                } else {
-                    headers[index] = `Column${index}`;
-                }
-            });
-        }
-        
-        console.log('Headers found:', headers);
-        
-        // Process data rows (skip header row if it's in rows)
-        const startRow = 1; // Skip header
-        
-        for (let i = startRow; i < data.table.rows.length; i++) {
-            const row = data.table.rows[i];
-            const incident = {};
-            
-            if (row.c) {
-                row.c.forEach((cell, colIndex) => {
-                    const header = headers[colIndex];
-                    if (header) {
-                        // Get cell value
-                        let value = '';
-                        if (cell && cell.v !== null && cell.v !== undefined) {
-                            value = cell.v;
-                            // Convert dates
-                            if (cell.f && cell.f.includes('/')) {
-                                value = cell.f; // Use formatted date
-                            }
-                        }
-                        incident[header] = value;
-                    }
-                });
-                
-                // Only add if it has at least one non-empty value
-                const hasData = Object.values(incident).some(val => 
-                    val !== null && val !== undefined && val !== ''
-                );
-                
-                if (hasData) {
-                    incidents.push(incident);
-                }
-            }
-        }
-        
-        console.log('Processed', incidents.length, 'incidents');
+    const incidents = [];
+    
+    if (!data.table || !data.table.rows) {
+        console.error('No table data found');
         return incidents;
     }
+
+    // Map your specific column indexes to labels
+    // Based on your sheet: A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7
+    const colMap = {
+        0: 'Case ID',
+        1: 'Timestamp',
+        2: 'Status',
+        3: 'Reporter Name',
+        4: 'Reporter Email',
+        5: 'Department',
+        6: 'Incident Type',
+        7: 'Priority'
+    };
+
+    // Process rows starting from the VERY FIRST ROW (index 0)
+    // because your JSON suggests the header row isn't being excluded by the API
+    data.table.rows.forEach(row => {
+        const incident = {};
+        if (row.c) {
+            row.c.forEach((cell, colIndex) => {
+                const label = colMap[colIndex];
+                if (label) {
+                    // Extract the value 'v' or formatted value 'f'
+                    let val = (cell && cell.v !== null) ? cell.v : '';
+                    if (cell && cell.f) val = cell.f;
+                    incident[label] = val;
+                }
+            });
+
+            // Only add if it's not a header row itself
+            if (incident['Case ID'] !== 'Case ID' && incident['Case ID'] !== '') {
+                incidents.push(incident);
+            }
+        }
+    });
+
+    console.log('Cleanly Processed', incidents.length, 'incidents');
+    return incidents;
+}
     
     // Update dashboard display
     function updateDashboard(incidents) {
