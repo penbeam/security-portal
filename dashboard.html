@@ -317,6 +317,9 @@
             
             // Priority badge class
             const priorityClass = incident.Priority ? `badge-${incident.Priority.toLowerCase()}` : 'badge-medium';
+
+            // Safety check for Description
+            const shortDesc = incident.Description ? (incident.Description.substring(0, 30) + '...') : 'N/A';
             
             row.innerHTML = `
                 <td><strong>${incident['Case ID'] || 'N/A'}</strong></td>
@@ -324,6 +327,7 @@
                 <td><span class="badge ${priorityClass}">${incident.Priority || 'Medium'}</span></td>
                 <td>${incident.Department || 'N/A'}</td>
                 <td>${incident.Status || 'NEW'}</td>
+                <td title="${incident.Description}">${shortDesc}</td>
                 <td>${timeDisplay}</td>
             `;
             
