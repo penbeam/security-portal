@@ -328,25 +328,31 @@
         const tbody = document.getElementById('incidentsBody');
         tbody.innerHTML = '';
         
-        const recentIncidents = [...incidents].reverse(); // Show most recent first
+        const recentIncidents = [...incidents].reverse(); // Display all incidents
         
         recentIncidents.forEach(incident => {
             const row = document.createElement('tr');
             
-            // Format timestamp
-            let timeDisplay = 'Recent';
-            if (incident.Timestamp) {
-                const date = new Date(incident.Timestamp);
-                if (!isNaN(date.getTime())) {
-                    timeDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                }
-            }
+            // --- REPLACE YOUR OLD TIME BLOCK WITH THIS ---
+let timeDisplay = 'Recent';
+
+// Check for the date in multiple possible header names
+const rawDate = incident.Timestamp || incident.timestamp || incident.Time || incident.time;
+
+if (rawDate) {
+    const date = new Date(rawDate);
+    // Ensure the date is valid before formatting
+    if (!isNaN(date.getTime())) {
+        timeDisplay = date.toLocaleDateString() + ' ' + 
+        date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+}
             
             // Priority badge class
             const priorityClass = incident.Priority ? `badge-${incident.Priority.toLowerCase()}` : 'badge-medium';
 
             // Safety check for Description
-            const shortDesc = incident.Description ? (incident.Description.substring(0, 30) + '...') : 'N/A';
+            const shortDesc = incident.Description ? (incident.Description.substring(0, 50) + '...') : 'N/A';
             
             row.innerHTML = `
                 <td><strong>${incident['Case ID'] || 'N/A'}</strong></td>
