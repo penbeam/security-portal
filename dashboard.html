@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <title>Security Dashboard</title>
     <style>
         /* Use same styles as form */
@@ -81,6 +82,16 @@
             width: 100%;
             box-sizing: border-box;
         }
+
+        .search-container button:hover {
+            background-color: #2c5282 !important; /* A slightly lighter navy */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+
+        .search-container button:active {
+            transform: translateY(0);
+         }
 
         /* New: A wrapper just for the table to allow horizontal scrolling */
         .table-wrapper {
@@ -217,6 +228,15 @@
        <div class="search-container">
             <input type="text" id="dashboardSearch" placeholder="Search by Case ID, Type, or Department..." 
            style="width: 100%; padding: 0.75rem; border-radius: 6px; border: 1px solid #cbd5e0; box-sizing: border-box;">
+
+           <button onclick="exportToPDF()" style="width: 100%; padding: 12px; background: #1a365d; color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+        </svg>
+        GENERATE EXECUTIVE PDF REPORT
+    </button>
+           
       </div>
 
        <div class="table-wrapper">     
@@ -356,53 +376,49 @@
         const recentIncidents = [...incidents].reverse(); // Display all incidents
         
         recentIncidents.forEach(incident => {
-            const row = document.createElement('tr');
-            
-            // --- IMPROVED TIME BLOCK ---
-let timeDisplay = 'Recent';
-const rawDate = incident.Timestamp || incident.timestamp || incident.Time;
-
-if (rawDate) {
-    let date;
+        const row = document.createElement('tr');
     
-    // Check if the date is in the Google "Date(y,m,d,h,m,s)" format
-    if (typeof rawDate === 'string' && rawDate.startsWith('Date(')) {
-        // Extract the numbers between the brackets
-        const parts = rawDate.match(/\d+/g);
-        if (parts && parts.length >= 3) {
-            // Note: Google months are 0-indexed (Jan = 0)
-            date = new Date(parts[0], parts[1], parts[2], parts[3] || 0, parts[4] || 0, parts[5] || 0);
+        // 1. ADD HIDDEN DATA (For the PDF to find later)
+        row.setAttribute('data-reporter-name', incident['Reporter Name'] || 'N/A');
+        row.setAttribute('data-reporter-email', incident['Reporter Email'] || 'N/A');
+        row.setAttribute('data-timezone', incident['User Timezone'] || 'N/A');
+        row.setAttribute('data-full-desc', incident.Description || 'N/A');
+
+        // 2. YOUR TIME LOGIC
+        let timeDisplay = 'Recent';
+        const rawDate = incident.Timestamp || incident.timestamp || incident.Time;
+        if (rawDate) {
+        let date;
+        if (typeof rawDate === 'string' && rawDate.startsWith('Date(')) {
+            const parts = rawDate.match(/\d+/g);
+            if (parts && parts.length >= 3) {
+                date = new Date(parts[0], parts[1], parts[2], parts[3] || 0, parts[4] || 0, parts[5] || 0);
+            }
+        } else {
+            date = new Date(rawDate);
         }
-    } else {
-        // Standard date format
-        date = new Date(rawDate);
+        if (date && !isNaN(date.getTime())) {
+            timeDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
     }
 
-    // If we have a valid date, format it
-    if (date && !isNaN(date.getTime())) {
-        timeDisplay = date.toLocaleDateString() + ' ' + 
-        date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-}
-            
-            // Priority badge class
-            const priorityClass = incident.Priority ? `badge-${incident.Priority.toLowerCase()}` : 'badge-medium';
+    // 3. YOUR BADGE & DESCRIPTION LOGIC
+    const priorityClass = incident.Priority ? `badge-${incident.Priority.toLowerCase()}` : 'badge-medium';
+    const shortDesc = incident.Description ? (incident.Description.substring(0, 50) + '...') : 'N/A';
 
-            // Safety check for Description
-            const shortDesc = incident.Description ? (incident.Description.substring(0, 50) + '...') : 'N/A';
-            
-            row.innerHTML = `
-                <td><strong>${incident['Case ID'] || 'N/A'}</strong></td>
-                <td>${incident['Incident Type'] || 'N/A'}</td>
-                <td><span class="badge ${priorityClass}">${incident.Priority || 'Medium'}</span></td>
-                <td>${incident.Department || 'N/A'}</td>
-                <td>${incident.Status || 'NEW'}</td>
-                <td title="${incident.Description}">${shortDesc}</td>
-                <td>${timeDisplay}</td>
-            `;
-            
-            tbody.appendChild(row);
-        });
+    // 4. GENERATE THE VISIBLE TABLE ROW
+    row.innerHTML = `
+        <td><strong>${incident['Case ID'] || 'N/A'}</strong></td>
+        <td>${incident['Incident Type'] || 'N/A'}</td>
+        <td><span class="badge ${priorityClass}">${incident.Priority || 'Medium'}</span></td>
+        <td>${incident.Department || 'N/A'}</td>
+        <td>${incident.Status || 'NEW'}</td>
+        <td title="${incident.Description}">${shortDesc}</td>
+        <td>${timeDisplay}</td>
+    `;
+    
+    tbody.appendChild(row);
+});
         
         // Update last updated time
         const now = new Date();
@@ -479,7 +495,105 @@ if (rawDate) {
         });
     }
 });
-    
+
+
+// PDF Export Function
+        function exportToPDF() {
+    // 1. Get only the rows currently visible in the table (filtered by search)
+    const visibleRows = Array.from(document.querySelectorAll('#incidentsBody tr')).filter(row => row.style.display !== 'none');
+
+    if (visibleRows.length === 0) {
+        alert("No incidents found to export.");
+        return;
+    }
+
+    const container = document.createElement('div');
+
+    visibleRows.forEach((row, index) => {
+        // 2. Clone the Premium Template
+        const template = document.getElementById('pdf-template').cloneNode(true);
+        template.style.display = 'block';
+
+        // 3. Map Visible Cells
+        template.querySelector('#pdf-case-id').innerText = row.cells[0].innerText;
+        template.querySelector('#pdf-type').innerText = row.cells[1].innerText;
+        template.querySelector('#pdf-priority').innerText = row.cells[2].innerText;
+        template.querySelector('#pdf-dept').innerText = row.cells[3].innerText;
+        template.querySelector('#pdf-status').innerText = row.cells[4].innerText;
+        template.querySelector('#pdf-time').innerText = row.cells[6].innerText;
+        
+        // 4. Map HIDDEN Attributes
+        template.querySelector('#pdf-name').innerText = row.getAttribute('data-reporter-name');
+        template.querySelector('#pdf-email').innerText = row.getAttribute('data-reporter-email');
+        template.querySelector('#pdf-timezone').innerText = row.getAttribute('data-timezone');
+        template.querySelector('#pdf-description').innerText = row.getAttribute('data-full-desc');
+        template.querySelector('#pdf-gen-date').innerText = new Date().toLocaleString();
+
+        // 5. Add Page Break
+        if (index < visibleRows.length - 1) {
+            template.style.pageBreakAfter = 'always';
+        }
+
+        container.appendChild(template);
+    });
+
+    // 6. Final PDF Generation
+    const opt = {
+        margin: 0,
+        filename: 'Security_Executive_Summary.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { scale: 3 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(container).save();
+}
+        
     </script>
+
+
+<div id="pdf-template" style="display: none; width: 800px; font-family: Arial, sans-serif; background: white; color: #1a202c;">
+    <div style="background: #1a365d; padding: 40px; color: white; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <img src="https://via.placeholder.com/200x60/1a365d/ffffff?text=SECURITY+LOG" alt="Company Logo" style="height: 50px;">
+            <p style="margin: 5px 0 0 0; font-size: 10px; letter-spacing: 2px; opacity: 0.7;">CONFIDENTIAL REPORT</p>
+        </div>
+        <div style="text-align: right;">
+            <h2 style="margin: 0; font-weight: 300;">INCIDENT CASE FILE</h2>
+            <p id="pdf-case-id" style="margin: 5px 0 0 0; font-weight: bold; font-size: 20px; color: #63b3ed;"></p>
+        </div>
+    </div>
+    <div style="padding: 40px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px; border-bottom: 1px solid #edf2f7; padding-bottom: 30px;">
+            <div>
+                <p style="font-size: 11px; color: #718096; text-transform: uppercase; font-weight: bold;">Personnel Details</p>
+                <p><strong>Reporter:</strong> <span id="pdf-name"></span></p>
+                <p><strong>Email:</strong> <span id="pdf-email"></span></p>
+                <p><strong>Dept:</strong> <span id="pdf-dept"></span></p>
+            </div>
+            <div>
+                <p style="font-size: 11px; color: #718096; text-transform: uppercase; font-weight: bold;">Logistics</p>
+                <p><strong>Priority:</strong> <span id="pdf-priority"></span></p>
+                <p><strong>Status:</strong> <span id="pdf-status"></span></p>
+                <p><strong>Timezone:</strong> <span id="pdf-timezone"></span></p>
+            </div>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <p style="font-size: 11px; color: #718096; text-transform: uppercase; font-weight: bold;">Incident Summary</p>
+            <p style="font-size: 18px; margin: 5px 0;"><strong>Type:</strong> <span id="pdf-type"></span></p>
+            <p><strong>Time Detected:</strong> <span id="pdf-time"></span></p>
+        </div>
+        <div style="background: #f8fafc; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <p style="font-size: 11px; color: #1a365d; text-transform: uppercase; font-weight: bold; margin-bottom: 10px;">Full Narrative</p>
+            <p id="pdf-description" style="line-height: 1.6; font-size: 14px; white-space: pre-wrap; margin: 0;"></p>
+        </div>
+        <div style="margin-top: 50px; text-align: center; border-top: 1px solid #eee; padding-top: 20px; font-size: 10px; color: #a0aec0;">
+            Official Security Document | Generated on <span id="pdf-gen-date"></span>
+        </div>
+    </div>
+</div>
+
+
+    
 </body>
 </html>
