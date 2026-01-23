@@ -499,37 +499,35 @@
 
 // PDF Export Function
         function exportToPDF() {
-    // 1. Get only the rows currently visible in the table (filtered by search)
     const visibleRows = Array.from(document.querySelectorAll('#incidentsBody tr')).filter(row => row.style.display !== 'none');
 
     if (visibleRows.length === 0) {
-        alert("No incidents found to export.");
+        alert("No visible data to export.");
         return;
     }
 
     const container = document.createElement('div');
 
     visibleRows.forEach((row, index) => {
-        // 2. Clone the Premium Template
         const template = document.getElementById('pdf-template').cloneNode(true);
         template.style.display = 'block';
 
-        // 3. Map Visible Cells
-        template.querySelector('#pdf-case-id').innerText = row.cells[0].innerText;
-        template.querySelector('#pdf-type').innerText = row.cells[1].innerText;
-        template.querySelector('#pdf-priority').innerText = row.cells[2].innerText;
-        template.querySelector('#pdf-dept').innerText = row.cells[3].innerText;
-        template.querySelector('#pdf-status').innerText = row.cells[4].innerText;
-        template.querySelector('#pdf-time').innerText = row.cells[6].innerText;
+        // 1. Map content while cleaning any "cite" or unwanted text
+        const cleanText = (str) => str.replace(/\/g, '').trim();
+
+        template.querySelector('#pdf-case-id').innerText = cleanText(row.cells[0].innerText);
+        template.querySelector('#pdf-type').innerText = cleanText(row.cells[1].innerText);
+        template.querySelector('#pdf-priority').innerText = cleanText(row.cells[2].innerText);
+        template.querySelector('#pdf-dept').innerText = cleanText(row.cells[3].innerText);
+        template.querySelector('#pdf-status').innerText = cleanText(row.cells[4].innerText);
+        template.querySelector('#pdf-time').innerText = cleanText(row.cells[6].innerText);
         
-        // 4. Map HIDDEN Attributes
-        template.querySelector('#pdf-name').innerText = row.getAttribute('data-reporter-name');
-        template.querySelector('#pdf-email').innerText = row.getAttribute('data-reporter-email');
-        template.querySelector('#pdf-timezone').innerText = row.getAttribute('data-timezone');
-        template.querySelector('#pdf-description').innerText = row.getAttribute('data-full-desc');
+        template.querySelector('#pdf-name').innerText = cleanText(row.getAttribute('data-reporter-name'));
+        template.querySelector('#pdf-email').innerText = cleanText(row.getAttribute('data-reporter-email'));
+        template.querySelector('#pdf-timezone').innerText = cleanText(row.getAttribute('data-timezone'));
+        template.querySelector('#pdf-description').innerText = cleanText(row.getAttribute('data-full-desc'));
         template.querySelector('#pdf-gen-date').innerText = new Date().toLocaleString();
 
-        // 5. Add Page Break
         if (index < visibleRows.length - 1) {
             template.style.pageBreakAfter = 'always';
         }
@@ -537,19 +535,18 @@
         container.appendChild(template);
     });
 
-    // 6. Final PDF Generation
     const opt = {
-    margin: [10, 10, 10, 10], // Adds professional breathing room
-    filename: 'Executive_Security_Report.pdf',
-    image: { type: 'jpeg', quality: 1 }, // Maximum quality
-    html2canvas: { 
-        scale: 4, // Higher scale = sharper text and colors
-        useCORS: true, 
-        logging: false,
-        letterRendering: true 
-    },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-};
+        margin: [10, 5, 10, 5], // Top, Left, Bottom, Right
+        filename: 'Executive_Security_Report.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            logging: false,
+            width: 750 // Force canvas width to prevent right-side cutting
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
 
     html2pdf().set(opt).from(container).save();
 }
@@ -557,54 +554,67 @@
     </script>
 
 
-<div id="pdf-template" style="display: none; width: 750px; background: #ffffff; color: #1a202c;">
-    <div style="background-color: #1a365d; padding: 30px; color: #ffffff;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-            <div>
-                <h2 style="margin: 0; font-size: 22px; letter-spacing: 1px;">INCIDENT REPORT</h2>
-                <p style="margin: 5px 0 0 0; font-size: 10px; opacity: 0.8; text-transform: uppercase;">[cite: 1] CONFIDENTIAL - INTERNAL USE ONLY</p>
-            </div>
-            <div style="text-align: right;">
-                <p id="pdf-case-id" style="margin: 0; font-size: 20px; font-weight: bold; color: #63b3ed;"></p>
-                <p style="margin: 0; font-size: 11px;">[cite: 2] CASE FILE REFERENCE</p>
-            </div>
-        </div>
-    </div>
+<div id="pdf-template" style="display: none; width: 700px; background-color: #ffffff; color: #1a202c; font-family: 'Helvetica', 'Arial', sans-serif;">
+    
+    <table style="width: 100%; background-color: #1a365d; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 30px; vertical-align: middle;">
+                <img src="https://via.placeholder.com/180x50/1a365d/ffffff?text=SECURITY+SOC" style="height: 45px; display: block;">
+                <p style="margin: 8px 0 0 0; color: #ffffff; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.8;">Internal Incident Disclosure</p>
+            </td>
+            <td style="padding: 30px; text-align: right; vertical-align: middle; color: #ffffff;">
+                <h1 style="margin: 0; font-size: 20px; font-weight: 300; letter-spacing: 1px;">INCIDENT REPORT</h1>
+                <p id="pdf-case-id" style="margin: 5px 0 0 0; font-size: 18px; font-weight: bold; color: #63b3ed;"></p>
+            </td>
+        </tr>
+    </table>
 
-    <div style="padding: 40px;">
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+    <div style="padding: 30px;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
             <tr>
-                <td style="width: 50%; vertical-align: top; padding-right: 20px;">
-                    <h4 style="color: #1a365d; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; margin-top: 0;">[cite: 4] PERSONNEL DETAILS</h4>
-                    <p style="margin: 8px 0;"><strong>[cite: 5] Reporter:</strong> <span id="pdf-name"></span></p>
-                    <p style="margin: 8px 0;"><strong>[cite: 6] Email:</strong> <span id="pdf-email"></span></p>
-                    <p style="margin: 8px 0;"><strong>[cite: 7] Dept:</strong> <span id="pdf-dept"></span></p>
+                <td style="width: 50%; vertical-align: top; padding-right: 15px; border-right: 1px solid #e2e8f0;">
+                    <p style="font-size: 11px; color: #718096; text-transform: uppercase; font-weight: bold; margin-bottom: 10px;">Personnel Details</p>
+                    <table style="width: 100%; font-size: 13px;">
+                        <tr><td style="padding: 3px 0; color: #4a5568;"><strong>Reporter:</strong></td><td id="pdf-name"></td></tr>
+                        <tr><td style="padding: 3px 0; color: #4a5568;"><strong>Email:</strong></td><td id="pdf-email"></td></tr>
+                        <tr><td style="padding: 3px 0; color: #4a5568;"><strong>Dept:</strong></td><td id="pdf-dept"></td></tr>
+                    </table>
                 </td>
-                <td style="width: 50%; vertical-align: top; padding-left: 20px; border-left: 1px solid #edf2f7;">
-                    <h4 style="color: #1a365d; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; margin-top: 0;">[cite: 8] LOGISTICS</h4>
-                    <p style="margin: 8px 0;"><strong>[cite: 9] Priority:</strong> <span id="pdf-priority"></span></p>
-                    <p style="margin: 8px 0;"><strong>[cite: 10] Status:</strong> <span id="pdf-status"></span></p>
-                    <p style="margin: 8px 0;"><strong>[cite: 11] Timezone:</strong> <span id="pdf-timezone"></span></p>
+                <td style="width: 50%; vertical-align: top; padding-left: 15px;">
+                    <p style="font-size: 11px; color: #718096; text-transform: uppercase; font-weight: bold; margin-bottom: 10px;">Case Logistics</p>
+                    <table style="width: 100%; font-size: 13px;">
+                        <tr><td style="padding: 3px 0; color: #4a5568;"><strong>Priority:</strong></td><td id="pdf-priority"></td></tr>
+                        <tr><td style="padding: 3px 0; color: #4a5568;"><strong>Status:</strong></td><td id="pdf-status"></td></tr>
+                        <tr><td style="padding: 3px 0; color: #4a5568;"><strong>Timezone:</strong></td><td id="pdf-timezone"></td></tr>
+                    </table>
                 </td>
             </tr>
         </table>
 
-        <div style="background-color: #f8fafc; padding: 20px; border-radius: 5px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
-            <h4 style="margin: 0 0 10px 0; color: #1a365d;">[cite: 12] INCIDENT SUMMARY</h4>
-            <p style="margin: 5px 0;"><strong>[cite: 13] Type:</strong> <span id="pdf-type"></span></p>
-            <p style="margin: 5px 0;"><strong>[cite: 14] Time Detected:</strong> <span id="pdf-time"></span></p>
+        <table style="width: 100%; background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 4px; margin-bottom: 25px;">
+            <tr>
+                <td style="padding: 15px;">
+                    <p style="font-size: 10px; color: #718096; text-transform: uppercase; margin: 0 0 5px 0;">Incident Classification</p>
+                    <p id="pdf-type" style="margin: 0; font-size: 15px; font-weight: bold; color: #2d3748;"></p>
+                </td>
+                <td style="padding: 15px; text-align: right;">
+                    <p style="font-size: 10px; color: #718096; text-transform: uppercase; margin: 0 0 5px 0;">Detection Time</p>
+                    <p id="pdf-time" style="margin: 0; font-size: 14px; font-weight: bold; color: #2d3748;"></p>
+                </td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 10px;">
+            <p style="font-size: 11px; color: #1a365d; text-transform: uppercase; font-weight: 900; border-bottom: 2px solid #edf2f7; padding-bottom: 5px; margin-bottom: 12px;">Case Narrative</p>
+            <p id="pdf-description" style="font-size: 13px; line-height: 1.7; color: #4a5568; margin: 0; text-align: justify;"></p>
         </div>
 
-        <div>
-            <h4 style="color: #1a365d; border-bottom: 2px solid #edf2f7; padding-bottom: 8px;">[cite: 15] FULL NARRATIVE</h4>
-            <div id="pdf-description" style="line-height: 1.6; color: #4a5568; font-size: 14px; text-align: justify; padding: 10px 0;">
-                </div>
-        </div>
-
-        <div style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #edf2f7; color: #a0aec0; font-size: 10px; display: flex; justify-content: space-between;">
-            <span> Official Security Document</span>
-            <span>Generated: <span id="pdf-gen-date"></span></span>
-        </div>
+        <table style="width: 100%; margin-top: 50px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+            <tr>
+                <td style="font-size: 9px; color: #a0aec0;">CONFIDENTIAL DATA - SECURITY OPERATIONS CENTER</td>
+                <td style="font-size: 9px; color: #a0aec0; text-align: right;">Page Generated: <span id="pdf-gen-date"></span></td>
+            </tr>
+        </table>
     </div>
 </div>
 
