@@ -198,6 +198,36 @@
             font-size: 3rem;
             margin-bottom: 1rem;
         }
+
+        .nav-container {
+           text-align: center;
+           margin-top: 2rem;
+           padding-top: 1.5rem;
+           border-top: 1px dotted #cbd5e0;
+        }
+
+       .btn-dashboard {
+           display: inline-flex;
+           align-items: center;
+           gap: 8px;
+           background-color: #ffffff;
+           color: #4a5568;
+           padding: 0.8rem 1.5rem;
+           border-radius: 8px;
+           text-decoration: none;
+           font-weight: 600;
+           border: 1px solid #e2e8f0;
+           transition: all 0.2s ease;
+           box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+       }
+
+       .btn-dashboard:hover {
+           background-color: #f7fafc;
+           border-color: #cbd5e0;
+           color: #1a365d;
+           transform: translateY(-1px);
+           box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
         
         /* Footer */
         .footer {
@@ -345,6 +375,13 @@
                     </button>
                 </div>
             </form>
+        <div class="nav-container">
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">Finished reporting?</p>
+            <a href="dashboard.html" class="btn-dashboard">
+            📊 View Incident Dashboard
+            </a>
+        </div>
+            
         </div>
     </main>
 
