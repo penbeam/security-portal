@@ -75,14 +75,18 @@
 
         /* Ensure the search container sticks just like the header */
         .search-container {
-            position: sticky;
-            top: 0;
-            z-index: 20; /* Higher than the th (z-index: 10) */
             background: #f8fafc;
-            padding: 1rem;
+            padding: 15px;
             border-bottom: 1px solid #e2e8f0;
-            box-sizing: border-box; /* Crucial: keeps padding INSIDE the 100% width */
             width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* New: A wrapper just for the table to allow horizontal scrolling */
+        .table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 450px; /* Adjust height as needed */
         }
         
         /* --- UNIVERSAL STICKY TABLE STYLES --- */
@@ -91,10 +95,8 @@
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             margin: 2rem 0;
-            max-height: 500px;    
-            overflow-y: auto;     /* Vertical scroll */
-            overflow-x: auto;     /* Horizontal scroll for mobile */
             position: relative;
+            overflow: hidden; /* We will handle scrolling inside */
             border: 1px solid #e2e8f0;
         }
 
@@ -105,6 +107,7 @@
             min-width: 800px; /* Ensures table doesn't 'squish' on mobile */
         }
 
+        /* The Header: Stays sticky to the TOP of the table-wrapper */
         th {
             background: #edf2f7;
             padding: 1rem;
@@ -112,7 +115,7 @@
             color: #4a5568;
             font-weight: 600;
             position: sticky;
-            top: 75px;           /* Locks to top of .incidents-table */
+            top: 0; /* Since it's inside the wrapper, top 0 is the start of the table */
             z-index: 10;
             border-bottom: 2px solid #cbd5e0;
         }
@@ -215,7 +218,8 @@
             <input type="text" id="dashboardSearch" placeholder="Search by Case ID, Type, or Department..." 
            style="width: 100%; padding: 0.75rem; border-radius: 6px; border: 1px solid #cbd5e0; box-sizing: border-box;">
       </div>
-            
+
+       <div class="table-wrapper">     
             <table>
                 <thead>
                     <tr>
@@ -232,6 +236,7 @@
                     <!-- Data will be loaded here -->
                 </tbody>
             </table>
+           </div>
         </div>
         
         <!-- Quick Actions -->
