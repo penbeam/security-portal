@@ -539,12 +539,17 @@
 
     // 6. Final PDF Generation
     const opt = {
-        margin: 0,
-        filename: 'Security_Executive_Summary.pdf',
-        image: { type: 'jpeg', quality: 1 },
-        html2canvas: { scale: 3 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+    margin: [10, 10, 10, 10], // Adds professional breathing room
+    filename: 'Executive_Security_Report.pdf',
+    image: { type: 'jpeg', quality: 1 }, // Maximum quality
+    html2canvas: { 
+        scale: 4, // Higher scale = sharper text and colors
+        useCORS: true, 
+        logging: false,
+        letterRendering: true 
+    },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+};
 
     html2pdf().set(opt).from(container).save();
 }
@@ -552,47 +557,56 @@
     </script>
 
 
-<div id="pdf-template" style="display: none; width: 800px; font-family: Arial, sans-serif; background: white; color: #1a202c;">
-    <div style="background: #1a365d; padding: 40px; color: white; display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <img src="https://via.placeholder.com/200x60/1a365d/ffffff?text=SECURITY+LOG" alt="Company Logo" style="height: 50px;">
-            <p style="margin: 5px 0 0 0; font-size: 10px; letter-spacing: 2px; opacity: 0.7;">CONFIDENTIAL REPORT</p>
-        </div>
-        <div style="text-align: right;">
-            <h2 style="margin: 0; font-weight: 300;">INCIDENT CASE FILE</h2>
-            <p id="pdf-case-id" style="margin: 5px 0 0 0; font-weight: bold; font-size: 20px; color: #63b3ed;"></p>
+<div id="pdf-template" style="display: none; width: 750px; background: #ffffff; color: #1a202c;">
+    <div style="background-color: #1a365d; padding: 30px; color: #ffffff;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <h2 style="margin: 0; font-size: 22px; letter-spacing: 1px;">INCIDENT REPORT</h2>
+                <p style="margin: 5px 0 0 0; font-size: 10px; opacity: 0.8; text-transform: uppercase;">[cite: 1] CONFIDENTIAL - INTERNAL USE ONLY</p>
+            </div>
+            <div style="text-align: right;">
+                <p id="pdf-case-id" style="margin: 0; font-size: 20px; font-weight: bold; color: #63b3ed;"></p>
+                <p style="margin: 0; font-size: 11px;">[cite: 2] CASE FILE REFERENCE</p>
+            </div>
         </div>
     </div>
+
     <div style="padding: 40px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px; border-bottom: 1px solid #edf2f7; padding-bottom: 30px;">
-            <div>
-                <p style="font-size: 11px; color: #718096; text-transform: uppercase; font-weight: bold;">Personnel Details</p>
-                <p><strong>Reporter:</strong> <span id="pdf-name"></span></p>
-                <p><strong>Email:</strong> <span id="pdf-email"></span></p>
-                <p><strong>Dept:</strong> <span id="pdf-dept"></span></p>
-            </div>
-            <div>
-                <p style="font-size: 11px; color: #718096; text-transform: uppercase; font-weight: bold;">Logistics</p>
-                <p><strong>Priority:</strong> <span id="pdf-priority"></span></p>
-                <p><strong>Status:</strong> <span id="pdf-status"></span></p>
-                <p><strong>Timezone:</strong> <span id="pdf-timezone"></span></p>
-            </div>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+            <tr>
+                <td style="width: 50%; vertical-align: top; padding-right: 20px;">
+                    <h4 style="color: #1a365d; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; margin-top: 0;">[cite: 4] PERSONNEL DETAILS</h4>
+                    <p style="margin: 8px 0;"><strong>[cite: 5] Reporter:</strong> <span id="pdf-name"></span></p>
+                    <p style="margin: 8px 0;"><strong>[cite: 6] Email:</strong> <span id="pdf-email"></span></p>
+                    <p style="margin: 8px 0;"><strong>[cite: 7] Dept:</strong> <span id="pdf-dept"></span></p>
+                </td>
+                <td style="width: 50%; vertical-align: top; padding-left: 20px; border-left: 1px solid #edf2f7;">
+                    <h4 style="color: #1a365d; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; margin-top: 0;">[cite: 8] LOGISTICS</h4>
+                    <p style="margin: 8px 0;"><strong>[cite: 9] Priority:</strong> <span id="pdf-priority"></span></p>
+                    <p style="margin: 8px 0;"><strong>[cite: 10] Status:</strong> <span id="pdf-status"></span></p>
+                    <p style="margin: 8px 0;"><strong>[cite: 11] Timezone:</strong> <span id="pdf-timezone"></span></p>
+                </td>
+            </tr>
+        </table>
+
+        <div style="background-color: #f8fafc; padding: 20px; border-radius: 5px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
+            <h4 style="margin: 0 0 10px 0; color: #1a365d;">[cite: 12] INCIDENT SUMMARY</h4>
+            <p style="margin: 5px 0;"><strong>[cite: 13] Type:</strong> <span id="pdf-type"></span></p>
+            <p style="margin: 5px 0;"><strong>[cite: 14] Time Detected:</strong> <span id="pdf-time"></span></p>
         </div>
-        <div style="margin-bottom: 30px;">
-            <p style="font-size: 11px; color: #718096; text-transform: uppercase; font-weight: bold;">Incident Summary</p>
-            <p style="font-size: 18px; margin: 5px 0;"><strong>Type:</strong> <span id="pdf-type"></span></p>
-            <p><strong>Time Detected:</strong> <span id="pdf-time"></span></p>
+
+        <div>
+            <h4 style="color: #1a365d; border-bottom: 2px solid #edf2f7; padding-bottom: 8px;">[cite: 15] FULL NARRATIVE</h4>
+            <div id="pdf-description" style="line-height: 1.6; color: #4a5568; font-size: 14px; text-align: justify; padding: 10px 0;">
+                </div>
         </div>
-        <div style="background: #f8fafc; padding: 25px; border-radius: 8px; border: 1px solid #e2e8f0;">
-            <p style="font-size: 11px; color: #1a365d; text-transform: uppercase; font-weight: bold; margin-bottom: 10px;">Full Narrative</p>
-            <p id="pdf-description" style="line-height: 1.6; font-size: 14px; white-space: pre-wrap; margin: 0;"></p>
-        </div>
-        <div style="margin-top: 50px; text-align: center; border-top: 1px solid #eee; padding-top: 20px; font-size: 10px; color: #a0aec0;">
-            Official Security Document | Generated on <span id="pdf-gen-date"></span>
+
+        <div style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #edf2f7; color: #a0aec0; font-size: 10px; display: flex; justify-content: space-between;">
+            <span> Official Security Document</span>
+            <span>Generated: <span id="pdf-gen-date"></span></span>
         </div>
     </div>
 </div>
-
 
     
 </body>
