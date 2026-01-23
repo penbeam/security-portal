@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <title>Security Dashboard</title>
     <style>
         /* Use same styles as form */
@@ -218,11 +217,6 @@
        <div class="search-container">
             <input type="text" id="dashboardSearch" placeholder="Search by Case ID, Type, or Department..." 
            style="width: 100%; padding: 0.75rem; border-radius: 6px; border: 1px solid #cbd5e0; box-sizing: border-box;">
-
-           <button onclick="exportToPDF()" style="width: 100%; margin-top: 10px; padding: 12px; background: #1a365d; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
-        📄 DOWNLOAD EXECUTIVE PDF REPORT
-    </button>
-           
       </div>
 
        <div class="table-wrapper">     
@@ -363,12 +357,6 @@
         
         recentIncidents.forEach(incident => {
             const row = document.createElement('tr');
-
-            // --- STEP 2A: ATTACH HIDDEN DATA FOR PDF ---
-    row.setAttribute('data-reporter-name', incident['Reporter Name'] || 'N/A');
-    row.setAttribute('data-reporter-email', incident['Reporter Email'] || 'N/A');
-    row.setAttribute('data-timezone', incident['User Timezone'] || 'N/A');
-    row.setAttribute('data-full-desc', incident.Description || 'N/A');
             
             // --- IMPROVED TIME BLOCK ---
 let timeDisplay = 'Recent';
@@ -491,113 +479,7 @@ if (rawDate) {
         });
     }
 });
-
-
-        // Export PDF Functionality
-        function exportToPDF() {
-    const visibleRows = Array.from(document.querySelectorAll('#incidentsBody tr')).filter(row => row.style.display !== 'none');
-    if (visibleRows.length === 0) return alert("No data available to export.");
-
-    const container = document.createElement('div');
-
-    visibleRows.forEach((row, index) => {
-        const template = document.getElementById('pdf-template').cloneNode(true);
-        template.style.display = 'block';
-
-        // Helper to clean and map data safely
-        const getVal = (selector, value) => {
-            const el = template.querySelector(selector);
-            if (el) el.innerText = (value || 'N/A').toString().replace(/\/g, '').trim();
-        };
-
-        // Mapping visible and hidden data
-        getVal('#pdf-case-id', row.cells[0].innerText);
-        getVal('#pdf-type', row.cells[1].innerText);
-        getVal('#pdf-priority', row.cells[2].innerText);
-        getVal('#pdf-dept', row.cells[3].innerText);
-        getVal('#pdf-status', row.cells[4].innerText);
-        getVal('#pdf-time', row.cells[6].innerText);
-        
-        getVal('#pdf-name', row.getAttribute('data-reporter-name'));
-        getVal('#pdf-email', row.getAttribute('data-reporter-email'));
-        getVal('#pdf-timezone', row.getAttribute('data-timezone'));
-        getVal('#pdf-description', row.getAttribute('data-full-desc'));
-        getVal('#pdf-gen-date', new Date().toLocaleString());
-
-        if (index < visibleRows.length - 1) template.style.pageBreakAfter = 'always';
-        container.appendChild(template);
-    });
-
-    // Executive PDF Settings
-    const opt = {
-        margin: [15, 15, 15, 15],
-        filename: 'Security_Executive_Report.pdf',
-        image: { type: 'jpeg', quality: 1 },
-        html2canvas: { 
-            scale: 3, 
-            useCORS: true, 
-            width: 780 // Fixed width to prevent right-side text cutting
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(container).save();
-}
-        
-    </script>
-
-
-
-    <div id="pdf-template" style="display: none; width: 750px; background-color: #ffffff; color: #1a202c; font-family: 'Helvetica', 'Arial', sans-serif;">
-    <table style="width: 100%; background-color: #1a365d; border-collapse: collapse;">
-        <tr>
-            <td style="padding: 35px; color: #ffffff; vertical-align: middle;">
-                <h1 style="margin: 0; font-size: 24px; letter-spacing: 1px;">INCIDENT REPORT</h1>
-                <p style="margin: 5px 0 0 0; font-size: 10px; text-transform: uppercase; opacity: 0.8; letter-spacing: 2px;">Confidential - Security Operations Center</p>
-            </td>
-            <td style="padding: 35px; text-align: right; vertical-align: middle;">
-                <p id="pdf-case-id" style="margin: 0; font-size: 22px; font-weight: bold; color: #63b3ed;"></p>
-                <p style="margin: 0; font-size: 10px; color: #ffffff; opacity: 0.6;">CASE REFERENCE ID</p>
-            </td>
-        </tr>
-    </table>
-
-    <div style="padding: 40px;">
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
-            <tr>
-                <td style="width: 50%; vertical-align: top; padding-right: 20px; border-right: 1px solid #edf2f7;">
-                    <h4 style="color: #1a365d; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; margin-top: 0; font-size: 12px;">PERSONNEL</h4>
-                    <p style="font-size: 13px; margin: 8px 0;"><strong>Reporter:</strong> <span id="pdf-name"></span></p>
-                    <p style="font-size: 13px; margin: 8px 0;"><strong>Email:</strong> <span id="pdf-email"></span></p>
-                    <p style="font-size: 13px; margin: 8px 0;"><strong>Department:</strong> <span id="pdf-dept"></span></p>
-                </td>
-                <td style="width: 50%; vertical-align: top; padding-left: 20px;">
-                    <h4 style="color: #1a365d; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; margin-top: 0; font-size: 12px;">LOGISTICS</h4>
-                    <p style="font-size: 13px; margin: 8px 0;"><strong>Priority:</strong> <span id="pdf-priority"></span></p>
-                    <p style="font-size: 13px; margin: 8px 0;"><strong>Status:</strong> <span id="pdf-status"></span></p>
-                    <p style="font-size: 13px; margin: 8px 0;"><strong>Timezone:</strong> <span id="pdf-timezone"></span></p>
-                </td>
-            </tr>
-        </table>
-
-        <div style="background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 30px;">
-            <p style="margin: 0 0 5px 0; font-size: 11px; color: #718096; font-weight: bold; text-transform: uppercase;">Incident Classification</p>
-            <p id="pdf-type" style="margin: 0; font-size: 18px; color: #2d3748; font-weight: bold;"></p>
-            <p style="margin: 15px 0 0 0; font-size: 12px; color: #4a5568;"><strong>Detection Timestamp:</strong> <span id="pdf-time"></span></p>
-        </div>
-
-        <div style="min-height: 200px;">
-            <h4 style="color: #1a365d; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; margin-bottom: 15px; font-size: 12px;">FULL CASE NARRATIVE</h4>
-            <div id="pdf-description" style="font-size: 14px; line-height: 1.8; color: #2d3748; text-align: justify; white-space: pre-wrap;"></div>
-        </div>
-
-        <div style="margin-top: 50px; border-top: 1px solid #edf2f7; padding-top: 20px; display: flex; justify-content: space-between; font-size: 10px; color: #a0aec0;">
-            <span>Official Security Audit Document</span>
-            <span style="text-align: right;">Report Generated: <span id="pdf-gen-date"></span></span>
-        </div>
-    </div>
-</div>
-
     
+    </script>
 </body>
 </html>
