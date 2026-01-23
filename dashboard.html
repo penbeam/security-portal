@@ -229,13 +229,9 @@
             <input type="text" id="dashboardSearch" placeholder="Search by Case ID, Type, or Department..." 
            style="width: 100%; padding: 0.75rem; border-radius: 6px; border: 1px solid #cbd5e0; box-sizing: border-box;">
 
-           <button onclick="exportToPDF()" style="width: 100%; padding: 12px; background: #1a365d; color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
-        </svg>
-        GENERATE EXECUTIVE PDF REPORT
-    </button>
+           <button onclick="exportToPDF()" style="width: 100%; margin-top: 15px; padding: 12px; background: #1a365d; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+    📥 DOWNLOAD EXECUTIVE PDF
+</button>
            
       </div>
 
@@ -376,44 +372,40 @@
         const recentIncidents = [...incidents].reverse(); // Display all incidents
         
         recentIncidents.forEach(incident => {
-        const row = document.createElement('tr');
+    const row = document.createElement('tr');
     
-        // 1. ADD HIDDEN DATA (For the PDF to find later)
-        row.setAttribute('data-reporter-name', incident['Reporter Name'] || 'N/A');
-        row.setAttribute('data-reporter-email', incident['Reporter Email'] || 'N/A');
-        row.setAttribute('data-timezone', incident['User Timezone'] || 'N/A');
-        row.setAttribute('data-full-desc', incident.Description || 'N/A');
+    // 1. HIDDEN ATTRIBUTES (Must use these exact keys for the PDF)
+    row.setAttribute('data-reporter-name', incident['Reporter Name'] || 'N/A');
+    row.setAttribute('data-reporter-email', incident['Reporter Email'] || 'N/A');
+    row.setAttribute('data-timezone', incident['User Timezone'] || 'N/A');
+    row.setAttribute('data-full-desc', incident['Description'] || 'N/A');
 
-        // 2. YOUR TIME LOGIC
-        let timeDisplay = 'Recent';
-        const rawDate = incident.Timestamp || incident.timestamp || incident.Time;
-        if (rawDate) {
-        let date;
-        if (typeof rawDate === 'string' && rawDate.startsWith('Date(')) {
-            const parts = rawDate.match(/\d+/g);
-            if (parts && parts.length >= 3) {
-                date = new Date(parts[0], parts[1], parts[2], parts[3] || 0, parts[4] || 0, parts[5] || 0);
-            }
-        } else {
-            date = new Date(rawDate);
-        }
-        if (date && !isNaN(date.getTime())) {
+    // 2. TIME LOGIC (Using your existing timeDisplay logic)
+    let timeDisplay = 'N/A';
+    const rawDate = incident['Timestamp'] || incident['Time'] || incident.timestamp;
+    if (rawDate) {
+        const date = new Date(rawDate);
+        if (!isNaN(date.getTime())) {
             timeDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
     }
 
-    // 3. YOUR BADGE & DESCRIPTION LOGIC
-    const priorityClass = incident.Priority ? `badge-${incident.Priority.toLowerCase()}` : 'badge-medium';
-    const shortDesc = incident.Description ? (incident.Description.substring(0, 50) + '...') : 'N/A';
+    // 3. PRIORITY BADGE LOGIC
+    const p = (incident['Priority'] || 'Medium').toLowerCase();
+    const priorityClass = `badge-${p}`;
 
-    // 4. GENERATE THE VISIBLE TABLE ROW
+    // 4. SHORT DESCRIPTION LOGIC
+    const desc = incident['Description'] || 'N/A';
+    const shortDesc = desc.length > 50 ? desc.substring(0, 50) + '...' : desc;
+
+    // 5. GENERATE VISIBLE TABLE ROWS
     row.innerHTML = `
         <td><strong>${incident['Case ID'] || 'N/A'}</strong></td>
         <td>${incident['Incident Type'] || 'N/A'}</td>
-        <td><span class="badge ${priorityClass}">${incident.Priority || 'Medium'}</span></td>
-        <td>${incident.Department || 'N/A'}</td>
-        <td>${incident.Status || 'NEW'}</td>
-        <td title="${incident.Description}">${shortDesc}</td>
+        <td><span class="badge ${priorityClass}">${incident['Priority'] || 'Medium'}</span></td>
+        <td>${incident['Department'] || 'N/A'}</td>
+        <td>${incident['Status'] || 'NEW'}</td>
+        <td title="${desc}">${shortDesc}</td>
         <td>${timeDisplay}</td>
     `;
     
