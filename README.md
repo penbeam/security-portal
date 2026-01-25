@@ -1,4 +1,6 @@
 # 🛡️ Security Incident Response & Dashboard System
+|   Project Created By: Muhammad Nadeem                |
+| :--- |
 
 A professional, end-to-end security incident reporting system featuring a web portal, automated logging, Telegram alerts, and a real-time data dashboard. Designed to be **completely beginner-friendly** - no technical experience required.
 
@@ -6,52 +8,24 @@ A professional, end-to-end security incident reporting system featuring a web po
 * **Reporting Portal:** [Visit Portal](https://penbeam.github.io/security-portal/index.html)
 * **Incident Dashboard:** [View Dashboard](https://penbeam.github.io/security-portal/dashboard.html)
 
+---
 
 ## 📋 Table of Contents
 1. [Overview](#-overview)
-2. [About the Project](#-about-the-project)
-3. [Key Features](#-key-features)
-4. [Prerequisites](#-prerequisites)
-5. [Step-by-Step Setup](#-step-by-step-setup-guide)
-6. [File Customization](#-file-customization)
-7. [Testing & Launch](#-testing--launch)
-8. [Troubleshooting](#-troubleshooting)
-9. [FAQs](#-frequently-asked-questions)
-
-
-## 📋 Table of Contents
-1. [Overview](#overview)
-2. [About the Project](#about-the-project)
-3. [Key Features](#key-features)
+2. [About the Project](#about)
+3. [Key Features](#features)
 4. [Prerequisites](#prerequisites)
-5. [Step-by-Step Setup](#step-by-step-setup)
-6. [File Customization](#file-customization)  <!-- This one! -->
-7. [Testing & Launch](#testing--launch)
+5. [Step-by-Step Setup](#setup)
+6. [File Customization](#customization)
+7. [Testing & Launch](#testing)
 8. [Troubleshooting](#troubleshooting)
-9. [FAQs](#frequently-asked-questions)
+9. [FAQs](#faqs)
+10. [Need Help?](#-need-help)
+11. [System Architecture](#-system-architecture)
+12. [Congratulations!](#-congratulations)
+13. [Project Metadata](#-project-metadata)
 
 ---
-
-## 📖 Overview
-
-## 🔥 About the Project
-**UNLEASH THE POWER OF COMPLETE CORPORATE SECURITY SYSTEM - 100% FREE & PROFESSIONAL GRADE**
-
-## 💎 Key Features  
-**What Makes This Project SPECIAL**
-
-## 🧰 Prerequisites
-
-## 📝 Step-by-Step Setup Guide
-
-## 🛠️ File Customization  <!-- The actual header -->
-
-## 🧪 Testing & Launch
-
-## 🔧 Troubleshooting
-
-## ❓ Frequently Asked Questions
-
 
 
 ## 📖 Overview
@@ -64,7 +38,7 @@ This system consists of 4 main components that work together:
 4. **Dashboard** (`dashboard.html`) - Real-time view of all incidents
 5. **Alerts** (Telegram + Email) - Instant notifications to your team
 
-
+<a id="about"></a>
 # 🔥 **UNLEASH THE POWER OF COMPLETE CORPORATE SECURITY SYSTEM - 100% FREE & PROFESSIONAL GRADE**
 
 ## 🚀 **Why This Project Is An Absolute Game-Changer**
@@ -72,7 +46,7 @@ This system consists of 4 main components that work together:
 **This isn't just another security tool - it's a complete enterprise-grade security incident management system that Fortune 500 companies pay thousands for, available to you completely FREE. No AI hype, no subscription fees, no hidden costs - just pure, professional functionality that WORKS.**
 
 ---
-
+<a id="features"></a>
 ## 💎 **KEY FEATURES - What Makes This Project SPECIAL**
 
 ### **🆓 100% FREE FOREVER - ZERO Cost Infrastructure**
@@ -294,10 +268,7 @@ This system consists of 4 main components that work together:
 
 ---
 
-
-
----
-
+<a id="prerequisites"></a>
 ## 🧰 Prerequisites
 
 You need these FREE accounts (click links to sign up):
@@ -312,7 +283,7 @@ You need these FREE accounts (click links to sign up):
 > **Note:** All services offer free tiers that are sufficient for this project.
 
 
-
+<a id="setup"></a>
 ## 📝 Step-by-Step Setup Guide
 
 Follow these steps **in order**. Each step is explained in detail.
@@ -546,7 +517,7 @@ Description: {{1.description}}
 ✅ **Step 4 Complete:** Your web portal is live!
 
 
-
+<a id="customization"></a>
 ## 🛠️ File Customization
 
 ### Customize Web Portal (`index.html`)
@@ -588,7 +559,7 @@ const SHEET_ID = '1aB2c3D4eF5g'; // Your actual ID here
 6. **Save the file** and re-upload to GitHub
 
 
-
+<a id="testing"></a>
 ## 🧪 Testing & Launch
 
 ### Test 1: Form Submission
@@ -610,7 +581,7 @@ const SHEET_ID = '1aB2c3D4eF5g'; // Your actual ID here
 2. You should see your test incident in the table
 
 
-
+<a id="troubleshooting"></a>
 ## 🔧 Troubleshooting
 
 **Problem**: **Form shows error**
@@ -631,7 +602,7 @@ const SHEET_ID = '1aB2c3D4eF5g'; // Your actual ID here
 **Problem**: **"Access denied" on dashboard**
 **Solution**: Google Sheet → Share → "Anyone with link can VIEW"
 
-
+<a id="faqs"></a>
 ## ❓ Frequently Asked Questions
 
 **Q: Is this system secure?**  
