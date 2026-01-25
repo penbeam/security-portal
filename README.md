@@ -646,7 +646,7 @@ If you get stuck at any step:
 
 1. **Double-check** you followed each step exactly
 2. **Compare** your setup with the screenshots/variable names
-3. **Contact support** by opening an issue in the GitHub repository
+3. **Contact support** by opening an issue in the GitHub repository: [Open a GitHub Issue](https://github.com/penbeam/security-portal/issues)
 
 
 ## 📊 System Architecture
