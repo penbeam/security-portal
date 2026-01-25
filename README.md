@@ -1,7 +1,25 @@
 # 🛡️ Security Incident Response & Dashboard System
-|   Project Created By: Muhammad Nadeem                |
-| :--- |
+<div align="center">
 
+![Security Platform](https://img.shields.io/badge/🚀-Next_Gen_Security_Platform-1a365d?style=for-the-badge)
+![Zero Cost](https://img.shields.io/badge/💰-Zero_Infrastructure_Cost-2d74da?style=for-the-badge)
+
+# ⚡ **SECURITY INCIDENT SYSTEM v3.0**
+### Enterprise Incident Reporting & Monitoring Dashboard
+
+**Development Lead:** Muhammad Nadeem  
+**Department:** Security Engineering  
+**Project ID:** SEC-PLATFORM-2024
+
+</div>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Production_Ready-brightgreen" alt="Status">
+  <img src="https://img.shields.io/badge/Deployment-GitHub_Pages-blue" alt="Deployment">
+  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
+</p>
+
+---
 A professional, end-to-end security incident reporting system featuring a web portal, automated logging, Telegram alerts, and a real-time data dashboard. Designed to be **completely beginner-friendly** - no technical experience required.
 
 ## 🌐 Live Demo Access
