@@ -19,6 +19,41 @@ A professional, end-to-end security incident reporting system featuring a web po
 9. [FAQs](#-frequently-asked-questions)
 
 
+## 📋 Table of Contents
+1. [Overview](#overview)
+2. [About the Project](#about-the-project)
+3. [Key Features](#key-features)
+4. [Prerequisites](#prerequisites)
+5. [Step-by-Step Setup](#step-by-step-setup)
+6. [File Customization](#file-customization)  <!-- This one! -->
+7. [Testing & Launch](#testing--launch)
+8. [Troubleshooting](#troubleshooting)
+9. [FAQs](#frequently-asked-questions)
+
+---
+
+## 📖 Overview
+
+## 🔥 About the Project
+**UNLEASH THE POWER OF COMPLETE CORPORATE SECURITY SYSTEM - 100% FREE & PROFESSIONAL GRADE**
+
+## 💎 Key Features  
+**What Makes This Project SPECIAL**
+
+## 🧰 Prerequisites
+
+## 📝 Step-by-Step Setup Guide
+
+## 🛠️ File Customization  <!-- The actual header -->
+
+## 🧪 Testing & Launch
+
+## 🔧 Troubleshooting
+
+## ❓ Frequently Asked Questions
+
+
+
 ## 📖 Overview
 
 This system consists of 4 main components that work together:
