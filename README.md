@@ -25,7 +25,7 @@ A professional, end-to-end security incident reporting system featuring a web po
 ## 🌐 Live Demo Access
 * **Reporting Portal:** [Visit Portal](https://penbeam.github.io/security-portal/index.html)
 * **Incident Dashboard:** [View Dashboard](https://penbeam.github.io/security-portal/dashboard.html)
-
+* **Demo Video:** [Watch Demo Video](https://drive.google.com/file/d/1igJffjNX2lFa-DOu-qZXUWPBh1kvMuO8/view?usp=sharing)
 ---
 
 ## 📋 Table of Contents
